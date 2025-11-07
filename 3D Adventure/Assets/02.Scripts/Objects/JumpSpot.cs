@@ -16,6 +16,7 @@ public class JumpSpot : MonoBehaviour
             {
                 player.controller.Jump(force);
                 StartCoroutine(PressAnimationCo());
+                player.condition.TakeDamage(10);
             }
         }
     }
