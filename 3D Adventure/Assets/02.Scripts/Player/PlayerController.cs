@@ -8,11 +8,13 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     public Transform model;
+    private Camera _camera;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed;
     [SerializeField] private float rotationSpeed;
     private Vector2 curMovementInput;
+    private bool canMove = true;
 
     [Header("Jump")]
     [SerializeField] private float jumpPower;
@@ -32,6 +34,7 @@ public class PlayerController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _animationHandler = GetComponent<AnimationHandler>();
         _collider = GetComponent<CapsuleCollider>();
+        _camera = Camera.main;
     }
 
     private void FixedUpdate()
@@ -61,31 +64,44 @@ public class PlayerController : MonoBehaviour
         if (context.phase == InputActionPhase.Started && isGrounded)
         {
             _animationHandler.Jump();
+            _rigidbody.velocity = new Vector3(0f, _rigidbody.velocity.y, 0f);
+            canMove = false;
         }
     }
     #endregion
 
     private void Move()
     {
-        Vector3 direction = curMovementInput.x * Vector3.right + curMovementInput.y * Vector3.forward;
-        direction *= moveSpeed;
-        direction.y = _rigidbody.velocity.y;
+        if (!canMove) return;
 
-        _rigidbody.velocity = direction;
+        Vector3 camForward = _camera.transform.forward;
+        camForward.y = 0f;
+        camForward.Normalize();
 
-        Vector3 normalDirection = new Vector3(direction.x, 0, direction.z).normalized;
+        Vector3 camRight = _camera.transform.right;
+        camRight.y = 0f;
+        camRight.Normalize();
 
-        if (normalDirection != Vector3.zero)
+        // calculate move direction base input value
+        Vector3 moveDir = (camForward * curMovementInput.y + camRight * curMovementInput.x).normalized;
+
+        Vector3 velocity = moveDir * moveSpeed;
+        velocity.y = _rigidbody.velocity.y;
+        _rigidbody.velocity = velocity;
+
+        if (moveDir != Vector3.zero)
         {
-            Quaternion targetLotation = Quaternion.LookRotation(normalDirection.normalized);
+            Quaternion targetLotation = Quaternion.LookRotation(moveDir);
             model.rotation = Quaternion.Slerp(model.rotation, targetLotation, rotationSpeed * Time.deltaTime);
         }
     }
 
-    public void Jump()
+    public void Jump(float addJumpForce = 0f)
     {
-        _rigidbody.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+        transform.position += Vector3.up * 0.05f;
+        _rigidbody.AddForce(Vector3.up * (jumpPower + addJumpForce), ForceMode.Impulse);
         isGrounded = false;
+        canMove = true;
     }
 
     private void Land()

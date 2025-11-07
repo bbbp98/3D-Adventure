@@ -1,15 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    PlayerController controller;
-    AnimationHandler animationHandler;
+    public PlayerController controller;
+    public AnimationHandler animationHandler;
 
     private void Awake()
     {
         controller = GetComponent<PlayerController>();
         animationHandler = GetComponent<AnimationHandler>();
+    }
+
+    private void Start()
+    {
+        CharacterManager.Instance.Player = this;
     }
 }

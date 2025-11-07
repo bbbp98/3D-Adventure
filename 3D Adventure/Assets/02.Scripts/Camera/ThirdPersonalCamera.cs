@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ThirdPersonalCamera : MonoBehaviour
 {
     [Header("Look")]
-    [SerializeField] private Transform cameraContainer;
+    [SerializeField] private Transform target;
     private float yaw;  // left-right rotation angle
     private float pitch;    // up-down rotation angle
     [SerializeField] private float minPitch;
@@ -16,6 +14,10 @@ public class ThirdPersonalCamera : MonoBehaviour
     [SerializeField] private float smoothRotationSpeed;
     [SerializeField] private bool canLook = true;
 
+    [Header("Follow")]
+    [SerializeField] private Vector3 followOffset = new Vector3(0, 2f, -4f);
+    [SerializeField] private float smoothFollowSpeed = 10f;
+
     private Vector2 mouseDelta;
 
     private void Start()
@@ -23,10 +25,17 @@ public class ThirdPersonalCamera : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
+    private void Update()
+    {
+       
+    }
+
     private void LateUpdate()
     {
         if (canLook)
             CameraLook();
+
+        FollowTarget();
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -36,15 +45,22 @@ public class ThirdPersonalCamera : MonoBehaviour
 
     private void CameraLook()
     {
-        if (cameraContainer == null) return;
+        if (target == null) return;
 
         yaw += mouseDelta.x * lookSensitivityX * Time.deltaTime;
         pitch -= mouseDelta.y * lookSensitivityY * Time.deltaTime;
-
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
-        Quaternion rot = Quaternion.Euler(pitch, yaw, 0);
-        //cameraContainer.rotation = rot;
-        cameraContainer.rotation = Quaternion.Slerp(cameraContainer.rotation, rot, smoothRotationSpeed * Time.deltaTime);
+        // rotate camera
+        Quaternion cameraRot = Quaternion.Euler(pitch, yaw, 0);
+        transform.rotation = Quaternion.Slerp(transform.rotation, cameraRot, smoothRotationSpeed * Time.deltaTime);
+    }
+
+    private void FollowTarget()
+    {
+        if (target == null) return;
+
+        Vector3 targetPos = target.position + transform.TransformDirection(followOffset);
+        transform.position = Vector3.Lerp(transform.position, targetPos, smoothFollowSpeed * Time.deltaTime);
     }
 }
