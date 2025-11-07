@@ -6,6 +6,11 @@ public class PlayerCondition : MonoBehaviour, IDamageable
 
     private Condition Health { get { return uiCondition.Health; } }
 
+    private void Update()
+    {
+        Heal(Health.GetPassiveValue() * Time.deltaTime);    // natural recovery
+    }
+
     public void Heal(float amount)
     {
         Health.Increase(amount);

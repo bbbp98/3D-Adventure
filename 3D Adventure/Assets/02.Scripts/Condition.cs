@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,9 @@ public class Condition : MonoBehaviour
     [Header("UI")]
     public Image uiBar;
     public float duration = 0.4f;
+
+    private Queue<Action> animateUIQueue = new Queue<Action>();
+    private bool isAnimate = false;
 
     #region Event
     public Action onValueChanged;
@@ -36,6 +40,11 @@ public class Condition : MonoBehaviour
         return curValue / maxValue;
     }
 
+    public float GetPassiveValue()
+    {
+        return passiveValue;
+    }
+
     public void Increase(float amount)
     {
         curValue = Mathf.Min(curValue + amount, maxValue);
@@ -52,11 +61,18 @@ public class Condition : MonoBehaviour
     #region UI
     public void UpdateUI()
     {
+        if (isAnimate)
+        {
+            animateUIQueue.Enqueue(() => StartCoroutine(AnimateUIBar(GetPercentage())));
+            return;
+        }
+
         StartCoroutine(AnimateUIBar(GetPercentage()));
     }
 
     private IEnumerator AnimateUIBar(float targetValue)
     {
+        isAnimate = true;
         float elapsed = 0f;
 
         while (elapsed < duration)
@@ -68,6 +84,7 @@ public class Condition : MonoBehaviour
         }
 
         uiBar.fillAmount = targetValue;
+        isAnimate = false;
     }
     #endregion
 }
