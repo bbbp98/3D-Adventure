@@ -14,18 +14,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float rotationSpeed;
     private Vector2 curMovementInput;
 
-    [Header("Look")]
-    [SerializeField] private float minXLook;
-    [SerializeField] private float maxXLook;
-    [SerializeField] private float minYLook;
-    [SerializeField] private float maxYLook;
-    private float camCurXRot;
-    private float camCurYRot;
-    public float lookSensitivity;
-    private Vector2 mouseDelta;
-    public bool canLook = true;
-    private Camera _camera;
-
     [Header("Jump")]
     [SerializeField] private float jumpPower;
     [SerializeField] private LayerMask groundLayer;
@@ -44,19 +32,12 @@ public class PlayerController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _animationHandler = GetComponent<AnimationHandler>();
         _collider = GetComponent<CapsuleCollider>();
-        _camera = Camera.main;
     }
 
     private void FixedUpdate()
     {
         Move();
         GroundCheck();
-    }
-
-    private void LateUpdate()
-    {
-        if (canLook)
-            CameraLook();
     }
     #endregion
 
@@ -73,11 +54,6 @@ public class PlayerController : MonoBehaviour
             curMovementInput = Vector2.zero;
             _animationHandler.Move(false);
         }
-    }
-
-    public void OnLook(InputAction.CallbackContext context)
-    {
-        mouseDelta = context.ReadValue<Vector2>();
     }
 
     public void OnJump(InputAction.CallbackContext context)
@@ -104,11 +80,6 @@ public class PlayerController : MonoBehaviour
             Quaternion targetLotation = Quaternion.LookRotation(normalDirection.normalized);
             model.rotation = Quaternion.Slerp(model.rotation, targetLotation, rotationSpeed * Time.deltaTime);
         }
-    }
-
-    private void CameraLook()
-    {
-        //camCurXRot += mouseDelta.y * lookSensitivity;
     }
 
     public void Jump()
