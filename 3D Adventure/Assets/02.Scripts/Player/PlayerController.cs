@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float rotationSpeed;
     private Vector2 curMovementInput;
     private bool canMove = true;
+    [SerializeField] float runSpeed;
 
     [Header("Jump")]
     [SerializeField] private float jumpPower;
@@ -50,12 +51,12 @@ public class PlayerController : MonoBehaviour
         if (context.phase == InputActionPhase.Performed)
         {
             curMovementInput = context.ReadValue<Vector2>();
-            _animationHandler.Move(true);
+            _animationHandler.OnMove(true);
         }
         else if (context.phase == InputActionPhase.Canceled)
         {
             curMovementInput = Vector2.zero;
-            _animationHandler.Move(false);
+            _animationHandler.OnMove(false);
         }
     }
 
@@ -63,9 +64,23 @@ public class PlayerController : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Started && isGrounded)
         {
-            _animationHandler.Jump();
+            _animationHandler.OnJump();
             _rigidbody.velocity = new Vector3(0f, _rigidbody.velocity.y, 0f);
             canMove = false;
+        }
+    }
+
+    public void OnRun(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed && isGrounded)
+        {
+            CharacterManager.Instance.Player.isRun = true;
+            _animationHandler.OnRun(CharacterManager.Instance.Player.isRun);
+        }
+        else if (context.phase == InputActionPhase.Canceled)
+        {
+            CharacterManager.Instance.Player.isRun = false;
+            _animationHandler.OnRun(CharacterManager.Instance.Player.isRun);
         }
     }
     #endregion
@@ -85,7 +100,7 @@ public class PlayerController : MonoBehaviour
         // calculate move direction base input value
         Vector3 moveDir = (camForward * curMovementInput.y + camRight * curMovementInput.x).normalized;
 
-        Vector3 velocity = moveDir * moveSpeed;
+        Vector3 velocity = CharacterManager.Instance.Player.isRun ? moveDir * runSpeed : moveDir * moveSpeed;
         velocity.y = _rigidbody.velocity.y;
         _rigidbody.velocity = velocity;
 
@@ -106,7 +121,7 @@ public class PlayerController : MonoBehaviour
 
     private void Land()
     {
-        _animationHandler.Land();
+        _animationHandler.OnLand();
     }
 
     private void GroundCheck()

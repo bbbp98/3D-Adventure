@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
     public PlayerCondition condition;
     public AnimationHandler animationHandler;
 
+    public bool isRun;
+
     private void Awake()
     {
         controller = GetComponent<PlayerController>();

@@ -40,7 +40,7 @@ public class Interaction : MonoBehaviour
 
                     // set UI
                     interactUI.SetActive(true);
-                    itemNameText.text = curInteractable.GetItemData().name;
+                    itemNameText.text = curInteractable.GetItemData().itemName;
                 }
             }
             else

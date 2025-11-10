@@ -24,6 +24,7 @@ public class DropItem : MonoBehaviour, IInteractable
 
     public void OnInteract()
     {
+        // add to inventory
         Destroy(gameObject);
     }
 }
