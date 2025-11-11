@@ -12,7 +12,7 @@ public class ThirdPersonalCamera : MonoBehaviour
     [SerializeField] private float lookSensitivityX;
     [SerializeField] private float lookSensitivityY;
     [SerializeField] private float smoothRotationSpeed;
-    [SerializeField] private bool canLook = true;
+    [SerializeField] public bool canLook = true;
 
     [Header("Follow")]
     [SerializeField] private Vector3 followOffset = new Vector3(0, 2f, -4f);
@@ -22,7 +22,7 @@ public class ThirdPersonalCamera : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Update()

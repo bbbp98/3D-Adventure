@@ -15,13 +15,12 @@ public class JumpSpot : MonoBehaviour
             if (!player.controller.isGrounded)
             {
                 player.controller.Jump(force);
-                StartCoroutine(PressAnimationCo());
-                player.condition.TakeDamage(10);
+                StartCoroutine(PressAnimation());
             }
         }
     }
 
-    private IEnumerator PressAnimationCo()
+    private IEnumerator PressAnimation()
     {
         originalScale = transform.localScale;
         float timer = 0f;

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -8,11 +9,16 @@ public class Player : MonoBehaviour
 
     public bool isRun;
 
+    public ItemData itemData;
+    public Transform dropPosition;
+
+    public Action onAddItem;
+
     private void Awake()
     {
+        CharacterManager.Instance.Player = this;
         controller = GetComponent<PlayerController>();
         condition = GetComponent<PlayerCondition>();
         animationHandler = GetComponent<AnimationHandler>();
-        CharacterManager.Instance.Player = this;
     }
 }

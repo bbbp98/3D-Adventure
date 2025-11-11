@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -9,6 +10,7 @@ public class PlayerController : MonoBehaviour
 {
     public Transform model;
     private Camera _camera;
+    private ThirdPersonalCamera mCamera;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed;
@@ -29,6 +31,10 @@ public class PlayerController : MonoBehaviour
     private AnimationHandler _animationHandler;
     private CapsuleCollider _collider;
 
+    #region Event
+    public Action onOpenInventory;
+    #endregion
+
     #region Unity Life Cycle
     private void Awake()
     {
@@ -36,6 +42,8 @@ public class PlayerController : MonoBehaviour
         _animationHandler = GetComponent<AnimationHandler>();
         _collider = GetComponent<CapsuleCollider>();
         _camera = Camera.main;
+        mCamera = _camera.GetComponent<ThirdPersonalCamera>();
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void FixedUpdate()
@@ -83,7 +91,23 @@ public class PlayerController : MonoBehaviour
             _animationHandler.OnRun(CharacterManager.Instance.Player.isRun);
         }
     }
+
+    public void OnOpenInventory(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started)
+        {
+            onOpenInventory?.Invoke();
+            ToggleCursor();
+        }
+    }
     #endregion
+
+    private void ToggleCursor()
+    {
+        bool toggle = Cursor.lockState == CursorLockMode.Locked;
+        Cursor.lockState = toggle ? CursorLockMode.None : CursorLockMode.Locked;
+        mCamera.canLook = !toggle;
+    }
 
     private void Move()
     {
