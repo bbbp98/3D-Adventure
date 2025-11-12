@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public enum ItemType
@@ -10,8 +11,10 @@ public enum ItemType
 public enum ConsumableType
 {
     Health,
+    Stamina,
 }
 
+[Serializable]
 public class ConsumableItemData
 {
     public ConsumableType type;
@@ -25,9 +28,11 @@ public class ItemData : ScriptableObject
     public string itemName;
     public string itemDescription;
     public ItemType itemType;
-    public Sprite icon;
     public GameObject dropPrefab;
     public GameObject previewPrefab;
+
+    [Header("Stacking")]
+    public bool canStack;
 
     [Header("Consumable")]
     public ConsumableItemData[] consumableItemDatas;

@@ -24,7 +24,8 @@ public class DropItem : MonoBehaviour, IInteractable
 
     public void OnInteract()
     {
-        // add to inventory
+        CharacterManager.Instance.Player.itemData = data;
+        CharacterManager.Instance.Player.onAddItem?.Invoke();
         Destroy(gameObject);
     }
 }

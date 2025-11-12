@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 136752198598419865}
   - component: {fileID: 4669517577234204929}
   m_Layer: 7
-  m_Name: mug_full
+  m_Name: Preview Mug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

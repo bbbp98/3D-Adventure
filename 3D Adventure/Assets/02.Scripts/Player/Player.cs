@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
     public PlayerController controller;
     public PlayerCondition condition;
     public AnimationHandler animationHandler;
+    public UIInventory inventory;
 
     public bool isRun;
 

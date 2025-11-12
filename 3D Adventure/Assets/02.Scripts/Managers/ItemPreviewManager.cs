@@ -11,26 +11,29 @@ public class ItemPreviewManager : MonoBehaviour
     [SerializeField] private Transform previewRoot;
     [SerializeField] private RenderTexture previewTexture;
     [SerializeField] private Transform slotParent;
-    [SerializeField] private Slot slotPrefab;
+    [SerializeField] private InventorySlot slotPrefab;
 
     private WaitForEndOfFrame waitForEnd = new WaitForEndOfFrame();
 
     private void OnEnable()
     {
-        
     }
 
     private void Start()
     {
-        
+        CharacterManager.Instance.Player.inventory.onInventoryChanged += RefreshInventoryUI;
+        RefreshInventoryUI(CharacterManager.Instance.Player.inventory.GetItems());
     }
 
     private void OnDisable()
     {
-        
+        if (CharacterManager.Instance != null &&
+        CharacterManager.Instance.Player != null &&
+        CharacterManager.Instance.Player.inventory != null)
+            CharacterManager.Instance.Player.inventory.onInventoryChanged -= RefreshInventoryUI;
     }
 
-    private void RefreshInventoryUI(List<ItemData> items)
+    private void RefreshInventoryUI(IEnumerable<InventoryItem> items)
     {
         foreach (Transform child in slotParent)
             Destroy(child.gameObject);
@@ -38,33 +41,37 @@ public class ItemPreviewManager : MonoBehaviour
         StartCoroutine(CreateItemIcons(items));
     }
 
-    private IEnumerator CreateItemIcons(List<ItemData> items)
+    private IEnumerator CreateItemIcons(IEnumerable<InventoryItem> items)
     {
-        foreach (var item in items)
+        foreach (var itemEntry in items)
         {
-            // create slot
-            Slot slot = Instantiate(slotPrefab, slotParent);
+            ItemData item = itemEntry.data;
+            int quantity = itemEntry.quantity;
+
+            InventorySlot slot = Instantiate(slotPrefab, slotParent);
+
+            // create 3d item preview
             GameObject itemInstance = Instantiate(item.previewPrefab, previewRoot);
             itemInstance.transform.localPosition = Vector3.zero;
-            itemInstance.transform.localRotation = Quaternion.identity;
+            itemInstance.transform.localRotation = Quaternion.Euler(0, 180, 0);
 
             previewCamara.targetTexture = previewTexture;
-
             yield return waitForEnd;
-
             previewCamara.Render();
-
             yield return waitForEnd;
-            yield return null;
 
-            Texture2D snapshot = new Texture2D(previewTexture.width, previewTexture.height);
+            // convert texture2d
+            Texture2D snapshot = new(previewTexture.width, previewTexture.height);
             RenderTexture.active = previewTexture;
-            snapshot.ReadPixels(new Rect(0, 0, previewTexture.width, previewTexture.height), 0, 0);
+            snapshot.ReadPixels(
+                new Rect(0, 0, previewTexture.width, previewTexture.height)
+                , 0, 0);
             snapshot.Apply();
             RenderTexture.active = null;
 
-            // 소모템, 장비템 구분
-            slot.SetItem(snapshot, item);
+            // slot setting
+            slot.SetItem(snapshot, item, quantity);
+
             Destroy(itemInstance);
         }
     }

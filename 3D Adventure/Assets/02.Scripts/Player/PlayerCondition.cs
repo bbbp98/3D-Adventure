@@ -31,6 +31,11 @@ public class PlayerCondition : MonoBehaviour, IDamageable
         Stamina.Decrease(amount);
     }
 
+    public void RecoveryStamina(float amount)
+    {
+        Stamina.Increase(amount);
+    }
+
     public void Die()
     {
         Debug.Log("die");

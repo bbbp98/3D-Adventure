@@ -2,24 +2,27 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Slot : MonoBehaviour
+public class InventorySlot : MonoBehaviour
 {
     [field: SerializeField] public RawImage Icon { get; private set; }
     [field: SerializeField] public TextMeshProUGUI QuantityText { get; private set; }
 
-    public ItemData linkedItem;
-
-    public void SetItem(Texture2D iconTexture, ItemData item, int quantity = 1)
+    private ItemData itemData;
+    public void OnClick()
     {
+        CharacterManager.Instance.Player.inventory.SelectItem(itemData);
+    }
+
+    public void SetItem(Texture2D iconTexture, ItemData item, int quantity)
+    {
+        itemData = item;
         Icon.texture = iconTexture;
-        linkedItem = item;
-        QuantityText.text = quantity.ToString();
+        QuantityText.text = quantity > 1 ? quantity.ToString() : string.Empty;
     }
 
     public void Clear()
     {
         Icon.texture = null;
-        linkedItem = null;
         QuantityText.text = string.Empty;
     }
 }
