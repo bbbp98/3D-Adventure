@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float rotationSpeed;
     private Vector2 curMovementInput;
-    private bool canMove = true;
+    public bool canMove = true;
     [SerializeField] float runSpeed;
 
     [Header("Jump")]
@@ -111,7 +111,11 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        if (!canMove) return;
+        if (!canMove)
+        {
+            _rigidbody.velocity = new Vector3(0, _rigidbody.velocity.y, 0);
+            return;
+        }
 
         Vector3 camForward = _camera.transform.forward;
         camForward.y = 0f;

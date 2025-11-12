@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     public AnimationHandler animationHandler;
     public UIInventory inventory;
 
-    public bool isRun;
+    public bool isRun = false;
 
     public ItemData itemData;
     public Transform dropPosition;

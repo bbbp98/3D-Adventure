@@ -28,6 +28,12 @@ public class UIInventory : MonoBehaviour
     public event OnInventoryChanged onInventoryChanged;
     #endregion
 
+    #region Life Cycle
+    private void OnEnable()
+    {
+        ClearSelectedItemWindow();
+    }
+
     private void Start()
     {
         CharacterManager.Instance.Player.inventory = this;
@@ -40,6 +46,7 @@ public class UIInventory : MonoBehaviour
 
         inventoryWindow.SetActive(false);
     }
+    #endregion
 
     #region Button Event
     public void OnUseButton()
@@ -48,7 +55,7 @@ public class UIInventory : MonoBehaviour
         {
             for (int i = 0; i < selectedItem.consumableItemDatas.Length; i++)
             {
-                switch(selectedItem.consumableItemDatas[i].type)
+                switch (selectedItem.consumableItemDatas[i].type)
                 {
                     case ConsumableType.Health:
                         condition.Heal(selectedItem.consumableItemDatas[i].value);
@@ -58,13 +65,25 @@ public class UIInventory : MonoBehaviour
                         break;
                 }
             }
+
+            inventoryDict[selectedItem].quantity--;
+            if (inventoryDict[selectedItem].quantity <= 0)
+            {
+                inventoryDict.Remove(selectedItem);
+                ClearSelectedItemWindow();
+            }
+
+            onInventoryChanged?.Invoke(inventoryDict.Values);
         }
     }
 
     public void OnDropButton()
     {
+        CharacterManager.Instance.Player.animationHandler.OnInteract();
         ThrowItem(selectedItem);
         RemoveItem(selectedItem);
+
+        ClearSelectedItemWindow();
     }
     #endregion
 
@@ -123,7 +142,9 @@ public class UIInventory : MonoBehaviour
 
     private void ThrowItem(ItemData item)
     {
-        Instantiate(item.dropPrefab, dropPosition.position, Quaternion.Euler(Vector3.one * Random.value * 360));
+        Vector3 dropPos = dropPosition.position + dropPosition.forward;
+        dropPos.y = 0.5f;
+        Instantiate(item.dropPrefab, dropPos, Quaternion.Euler(0, 180, 0));
     }
 
     public IEnumerable<InventoryItem> GetItems() => inventoryDict.Values;

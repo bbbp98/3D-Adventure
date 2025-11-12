@@ -13,4 +13,9 @@ public class AnimationEventHandler : MonoBehaviour
     {
         controller?.Jump();
     }
+
+    public void InteractionEndEvent()
+    {
+        controller.canMove = true;
+    }
 }

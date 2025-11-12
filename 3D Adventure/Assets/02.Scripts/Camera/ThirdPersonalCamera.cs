@@ -20,16 +20,6 @@ public class ThirdPersonalCamera : MonoBehaviour
 
     private Vector2 mouseDelta;
 
-    private void Start()
-    {
-        //Cursor.lockState = CursorLockMode.Locked;
-    }
-
-    private void Update()
-    {
-       
-    }
-
     private void LateUpdate()
     {
         if (canLook)

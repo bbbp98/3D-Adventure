@@ -29,9 +29,9 @@ public class Interaction : MonoBehaviour
         {
             lastCheckTime = Time.time;
 
-            Debug.DrawRay(transform.position, modelTransform.forward, Color.red);
+            Debug.DrawRay(transform.position + Vector3.up, modelTransform.forward, Color.red);
 
-            if (Physics.Raycast(transform.position, modelTransform.forward , out RaycastHit hit, checkDistance, layerMask))
+            if (Physics.Raycast(transform.position + Vector3.up, modelTransform.forward, out RaycastHit hit, checkDistance, layerMask))
             {
                 if (hit.collider.gameObject != curInteractGameObject)
                 {
@@ -54,11 +54,14 @@ public class Interaction : MonoBehaviour
 
     public void OnInteractInput(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && curInteractable != null)
+        if (context.phase == InputActionPhase.Started && curInteractable != null &&
+            CharacterManager.Instance.Player.controller.isGrounded)
         {
             curInteractable.OnInteract();
             curInteractGameObject = null;
             curInteractable = null;
+            CharacterManager.Instance.Player.animationHandler.OnInteract();
+            CharacterManager.Instance.Player.controller.canMove = false;
         }
     }
 }
