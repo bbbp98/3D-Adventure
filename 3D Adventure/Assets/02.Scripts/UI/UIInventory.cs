@@ -182,8 +182,7 @@ public class UIInventory : MonoBehaviour
             }
         }
 
-        useButton.SetActive(selectedItem.itemType == ItemType.Consumable);
-        useButton.SetActive(selectedItem.itemType == ItemType.Buff);
+        useButton.SetActive(selectedItem.itemType == ItemType.Consumable || selectedItem.itemType == ItemType.Buff);
         dropButton.SetActive(true);
     }
     #endregion
