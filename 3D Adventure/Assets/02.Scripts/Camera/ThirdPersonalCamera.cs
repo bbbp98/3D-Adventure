@@ -7,6 +7,7 @@ public class ThirdPersonalCamera : MonoBehaviour
     [SerializeField] private Transform target;
     private float yaw;  // left-right rotation angle
     private float pitch;    // up-down rotation angle
+
     [SerializeField] private float minPitch;
     [SerializeField] private float maxPitch;
     [SerializeField] private float lookSensitivityX;
@@ -15,7 +16,7 @@ public class ThirdPersonalCamera : MonoBehaviour
     [SerializeField] public bool canLook = true;
 
     [Header("Follow")]
-    [SerializeField] private Vector3 followOffset = new Vector3(0, 5f, -5f);
+    [SerializeField] private Vector3 followOffset;
     [SerializeField] private float smoothFollowSpeed = 10f;
 
     private Vector2 mouseDelta;
@@ -50,7 +51,8 @@ public class ThirdPersonalCamera : MonoBehaviour
     {
         if (target == null) return;
 
-        Vector3 targetPos = target.position + transform.TransformDirection(followOffset);
-        transform.position = Vector3.Lerp(transform.position, targetPos, smoothFollowSpeed * Time.deltaTime);
+        //Vector3 desiredPos = target.position + Quaternion.Euler(0, yaw, 0) * followOffset;
+        Vector3 desiredPos = target.position + transform.TransformDirection(followOffset);
+        transform.position = Vector3.Lerp(transform.position, desiredPos, smoothFollowSpeed * Time.deltaTime);
     }
 }

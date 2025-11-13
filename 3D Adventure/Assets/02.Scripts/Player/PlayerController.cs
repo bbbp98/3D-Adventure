@@ -128,7 +128,9 @@ public class PlayerController : MonoBehaviour
         // calculate move direction base input value
         Vector3 moveDir = (camForward * curMovementInput.y + camRight * curMovementInput.x).normalized;
 
-        Vector3 velocity = CharacterManager.Instance.Player.isRun ? moveDir * runSpeed : moveDir * moveSpeed;
+        float speed = CharacterManager.Instance.Player.isRun ? runSpeed : moveSpeed;
+        
+        Vector3 velocity = moveDir * speed;
         velocity.y = _rigidbody.velocity.y;
         _rigidbody.velocity = velocity;
 
