@@ -17,9 +17,10 @@ public class ThirdPersonalCamera : MonoBehaviour
 
     [Header("Follow")]
     [SerializeField] private Vector3 followOffset;
-    [SerializeField] private float smoothFollowSpeed = 10f;
+    [SerializeField] private float smoothFollowTime = 0.03f;
 
     private Vector2 mouseDelta;
+    private Vector3 followVel;
 
     private void LateUpdate()
     {
@@ -51,8 +52,10 @@ public class ThirdPersonalCamera : MonoBehaviour
     {
         if (target == null) return;
 
-        //Vector3 desiredPos = target.position + Quaternion.Euler(0, yaw, 0) * followOffset;
-        Vector3 desiredPos = target.position + transform.TransformDirection(followOffset);
-        transform.position = Vector3.Lerp(transform.position, desiredPos, smoothFollowSpeed * Time.deltaTime);
+        Vector3 backDir = transform.forward * followOffset.z;
+        Vector3 height = Vector3.up * followOffset.y;
+        Vector3 desiredPos = target.position + backDir + height;
+
+        transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref followVel, smoothFollowTime);
     }
 }

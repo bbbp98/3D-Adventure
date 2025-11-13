@@ -11,24 +11,32 @@ public class MovingPlatform : MonoBehaviour
     [SerializeField] private bool isMovingY;
     [SerializeField] private bool isMovingZ;
 
+    private Rigidbody _rigidbody;
     private Vector3 startPos;
     private float time;
 
+    public Vector3 PlatformVelocity { get; private set; }
+
+    private Vector3 lastPos;
+
     private void Awake()
     {
+        _rigidbody = GetComponent<Rigidbody>();
         startPos = transform.position;
+        lastPos = transform.position;
     }
 
     private void FixedUpdate()
     {
         Move();
+        CalculateVelocity();
     }
 
     private void Move()
     {
         time += Time.deltaTime * moveSpeed;
 
-        float offset = Mathf.PingPong(time, moveDistance) - moveDistance * 0.5f;
+        float offset = Mathf.Sin(time) * (moveDistance * 0.5f);
 
         Vector3 position = startPos;
 
@@ -41,24 +49,31 @@ public class MovingPlatform : MonoBehaviour
         if (isMovingZ)
             position.z += offset;
 
-        transform.position = position;
+        //transform.position = position;
+        _rigidbody.MovePosition(position);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void CalculateVelocity()
     {
-        if (collision.gameObject.TryGetComponent<Player>(out Player player))
-        {
-            player.transform.SetParent(transform);
-            return;
-        }
+        PlatformVelocity = (transform.position - lastPos) / Time.fixedDeltaTime;
+        lastPos = transform.position;
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.TryGetComponent<Player>(out Player player))
-        {
-            player.transform.SetParent(null);
-            return;
-        }
-    }
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision.gameObject.TryGetComponent<Player>(out Player player))
+    //    {
+    //        player.transform.SetParent(transform);
+    //        return;
+    //    }
+    //}
+
+    //private void OnCollisionExit(Collision collision)
+    //{
+    //    if (collision.gameObject.TryGetComponent<Player>(out Player player))
+    //    {
+    //        player.transform.SetParent(null);
+    //        return;
+    //    }
+    //}
 }

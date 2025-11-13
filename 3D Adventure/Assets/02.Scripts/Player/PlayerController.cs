@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     private AnimationHandler _animationHandler;
     private CapsuleCollider _collider;
 
+    private MovingPlatform currentPlatform;
+    private bool isOnPlatform;
+
     #region Event
     public Action onOpenInventory;
     #endregion
@@ -49,6 +52,14 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         Move();
+
+        if (isOnPlatform && currentPlatform != null)
+        {
+            Vector3 platformVel = currentPlatform.PlatformVelocity;
+            platformVel.y = 0;
+            _rigidbody.velocity += platformVel;
+        }
+
         GroundCheck();
     }
     #endregion
@@ -109,6 +120,7 @@ public class PlayerController : MonoBehaviour
         mCamera.canLook = !toggle;
     }
 
+    #region Movement
     private void Move()
     {
         if (!canMove)
@@ -143,22 +155,16 @@ public class PlayerController : MonoBehaviour
 
     public void Jump(float addJumpForce = 0f)
     {
-        transform.position += Vector3.up * 0.05f;
         _rigidbody.AddForce(Vector3.up * (jumpPower + addJumpForce), ForceMode.Impulse);
         isGrounded = false;
         canMove = true;
     }
 
-    private void Land()
-    {
-        _animationHandler.OnLand();
-    }
-
     private void GroundCheck()
     {
         // 캡슐 콜라이더 기준 중심점 계산
-        Vector3 start = transform.position + Vector3.up * (_collider.radius + 0.05f);
-        float checkDistance = (_collider.height / 2f) - _collider.radius + rayDistance;
+        Vector3 start = transform.position + Vector3.up * 0.1f;
+        float checkDistance = rayDistance;
 
         // SphereCast로 감지 (언덕에서도 안정적)
         bool hitGround = Physics.SphereCast(
@@ -172,11 +178,12 @@ public class PlayerController : MonoBehaviour
 
         // 착지 순간만 감지
         if (!wasGrounded && hitGround && _rigidbody.velocity.y <= 0)
-            Land();
+            _animationHandler.OnLand();
 
         wasGrounded = hitGround;
         isGrounded = hitGround;
     }
+    #endregion
 
     public void ApplyBuff(BuffItemData buffData)
     {
@@ -188,5 +195,27 @@ public class PlayerController : MonoBehaviour
     {
         moveSpeed -= buffData.buffValue;    
         runSpeed -= buffData.buffValue;
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.collider.TryGetComponent(out MovingPlatform mp))
+        {
+            if (transform.position.y > mp.transform.position.y + 0.05f)
+            {
+                isOnPlatform = true;
+                currentPlatform = mp;
+                isGrounded = true;
+            }
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.collider.TryGetComponent(out MovingPlatform mp))
+        {
+            isOnPlatform = false;
+            currentPlatform = null;
+        }
     }
 }
