@@ -28,6 +28,8 @@ public class UIInventory : MonoBehaviour
     public event OnInventoryChanged onInventoryChanged;
     #endregion
 
+    private CharacterManager characterManager;
+
     #region Life Cycle
     private void OnEnable()
     {
@@ -36,13 +38,14 @@ public class UIInventory : MonoBehaviour
 
     private void Start()
     {
-        CharacterManager.Instance.Player.inventory = this;
-        controller = CharacterManager.Instance.Player.controller;
-        condition = CharacterManager.Instance.Player.condition;
-        dropPosition = CharacterManager.Instance.Player.dropPosition;
+        characterManager = CharacterManager.Instance;
+        characterManager.Player.inventory = this;
+        controller = characterManager.Player.controller;
+        condition = characterManager.Player.condition;
+        dropPosition = characterManager.Player.dropPosition;
 
         controller.onOpenInventory += Toggle;
-        CharacterManager.Instance.Player.onAddItem += AddItem;
+        characterManager.Player.onAddItem += AddItem;
 
         inventoryWindow.SetActive(false);
     }
@@ -51,35 +54,20 @@ public class UIInventory : MonoBehaviour
     #region Button Event
     public void OnUseButton()
     {
-        if (selectedItem.itemType == ItemType.Consumable)
+        switch (selectedItem.itemType)
         {
-            for (int i = 0; i < selectedItem.consumableItemDatas.Length; i++)
-            {
-                switch (selectedItem.consumableItemDatas[i].type)
-                {
-                    case ConsumableType.Health:
-                        condition.Heal(selectedItem.consumableItemDatas[i].value);
-                        break;
-                    case ConsumableType.Stamina:
-                        condition.RecoveryStamina(selectedItem.consumableItemDatas[i].value);
-                        break;
-                }
-            }
-
-            inventoryDict[selectedItem].quantity--;
-            if (inventoryDict[selectedItem].quantity <= 0)
-            {
-                inventoryDict.Remove(selectedItem);
-                ClearSelectedItemWindow();
-            }
-
-            onInventoryChanged?.Invoke(inventoryDict.Values);
+            case ItemType.Consumable:
+                UseConsumableItem();
+                break;
+            case ItemType.Buff:
+                UseBuffItem();
+                break;
         }
     }
 
     public void OnDropButton()
     {
-        CharacterManager.Instance.Player.animationHandler.OnInteract();
+        characterManager.Player.animationHandler.OnInteract();
         ThrowItem(selectedItem);
         RemoveItem(selectedItem);
 
@@ -87,6 +75,7 @@ public class UIInventory : MonoBehaviour
     }
     #endregion
 
+    #region UI
     private void ClearSelectedItemWindow()
     {
         selectedItemName.text = string.Empty;
@@ -110,10 +99,12 @@ public class UIInventory : MonoBehaviour
     {
         return inventoryWindow.activeInHierarchy;
     }
+    #endregion
 
+    #region Management Item
     public void AddItem()
     {
-        ItemData newItem = CharacterManager.Instance.Player.itemData;
+        ItemData newItem = characterManager.Player.itemData;
 
         // check item can stack
         if (newItem.canStack && inventoryDict.TryGetValue(newItem, out InventoryItem existing))
@@ -140,10 +131,22 @@ public class UIInventory : MonoBehaviour
         onInventoryChanged?.Invoke(inventoryDict.Values);
     }
 
+    public void RemoveUsedItem()
+    {
+        inventoryDict[selectedItem].quantity--;
+        if (inventoryDict[selectedItem].quantity <= 0)
+        {
+            inventoryDict.Remove(selectedItem);
+            ClearSelectedItemWindow();
+        }
+
+        onInventoryChanged?.Invoke(inventoryDict.Values);
+    }
+
     private void ThrowItem(ItemData item)
     {
         Vector3 dropPos = dropPosition.position + dropPosition.forward;
-        dropPos.y = 0.5f;
+        dropPos.y = item.dropPrefab.transform.position.y;
         Instantiate(item.dropPrefab, dropPos, Quaternion.Euler(0, 180, 0));
     }
 
@@ -156,20 +159,67 @@ public class UIInventory : MonoBehaviour
         selectedItem = item;
 
         selectedItemName.text = selectedItem.itemName;
-        string description = selectedItem.itemDescription;
-        description = description.Replace("\\n", "\n");
+        string description = selectedItem.itemDescription.Replace("\\n", "\n");
         selectedItemDescription.text = description;
 
         selectedItemStatName.text = string.Empty;
         selectedItemStatValue.text = string.Empty;
 
-        for (int i = 0; i < selectedItem.consumableItemDatas.Length; i++)
+        if (selectedItem.itemType == ItemType.Consumable)
         {
-            selectedItemStatName.text += selectedItem.consumableItemDatas[i].type.ToString() + "\n";
-            selectedItemStatValue.text += selectedItem.consumableItemDatas[i].value.ToString() + "\n";
+            foreach (var c in selectedItem.consumableItemDatas)
+            {
+                selectedItemStatName.text += $"{c.type}\n";
+                selectedItemStatValue.text += $"{c.value}\n";
+            }
+        }
+        else if (selectedItem.itemType == ItemType.Buff)
+        {
+            foreach (var buff in selectedItem.buffItemDatas)
+            {
+                selectedItemStatName.text += $"{buff.buffName}\n";
+                selectedItemStatValue.text += $"{buff.buffValue} ({buff.duration}s)\n";
+            }
         }
 
         useButton.SetActive(selectedItem.itemType == ItemType.Consumable);
+        useButton.SetActive(selectedItem.itemType == ItemType.Buff);
         dropButton.SetActive(true);
     }
+    #endregion
+
+    #region Use Item
+    private void UseConsumableItem()
+    {
+        for (int i = 0; i < selectedItem.consumableItemDatas.Length; i++)
+        {
+            switch (selectedItem.consumableItemDatas[i].type)
+            {
+                case ConsumableType.Health:
+                    condition.Heal(selectedItem.consumableItemDatas[i].value);
+                    break;
+                case ConsumableType.Stamina:
+                    condition.RecoveryStamina(selectedItem.consumableItemDatas[i].value);
+                    break;
+            }
+        }
+
+        RemoveUsedItem();
+    }
+
+    private void UseBuffItem()
+    {
+        for (int i = 0; i < selectedItem.buffItemDatas.Length; i++)
+        {
+            switch (selectedItem.buffItemDatas[i].buffType)
+            {
+                case BuffType.SpeedUp:
+                    BuffManager.Instance.ApplyBuff(selectedItem.buffItemDatas[i]);
+                    break;
+            }
+        }
+
+        RemoveUsedItem();
+    }
+    #endregion
 }

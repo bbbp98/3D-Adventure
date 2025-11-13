@@ -175,4 +175,16 @@ public class PlayerController : MonoBehaviour
         wasGrounded = hitGround;
         isGrounded = hitGround;
     }
+
+    public void ApplyBuff(BuffItemData buffData)
+    {
+        moveSpeed += buffData.buffValue;
+        runSpeed += buffData.buffValue;
+    }
+
+    public void RemoveBuff(BuffItemData buffData)
+    {
+        moveSpeed -= buffData.buffValue;    
+        runSpeed -= buffData.buffValue;
+    }
 }

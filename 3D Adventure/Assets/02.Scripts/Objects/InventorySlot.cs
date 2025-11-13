@@ -17,7 +17,7 @@ public class InventorySlot : MonoBehaviour
     {
         itemData = item;
         Icon.texture = iconTexture;
-        QuantityText.text = quantity > 1 ? quantity.ToString() : string.Empty;
+        QuantityText.text = quantity > 0 ? quantity.ToString() : string.Empty;
     }
 
     public void Clear()

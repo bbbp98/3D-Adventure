@@ -16,11 +16,12 @@ public class Interaction : MonoBehaviour
 
     [SerializeField] GameObject interactUI;
     [SerializeField] TextMeshProUGUI itemNameText;
-    private Camera _camera;
+
+    private CharacterManager characterManager;
 
     private void Start()
     {
-        _camera = Camera.main;
+        characterManager = CharacterManager.Instance;
     }
 
     private void Update()
@@ -29,9 +30,12 @@ public class Interaction : MonoBehaviour
         {
             lastCheckTime = Time.time;
 
-            Debug.DrawRay(transform.position + Vector3.up, modelTransform.forward, Color.red);
+            Vector3 pos = transform.position;
+            pos += Vector3.up * 0.5f;
 
-            if (Physics.Raycast(transform.position + Vector3.up, modelTransform.forward, out RaycastHit hit, checkDistance, layerMask))
+            Debug.DrawRay(pos, modelTransform.forward, Color.red);
+
+            if (Physics.Raycast(pos, modelTransform.forward, out RaycastHit hit, checkDistance, layerMask))
             {
                 if (hit.collider.gameObject != curInteractGameObject)
                 {
@@ -55,13 +59,12 @@ public class Interaction : MonoBehaviour
     public void OnInteractInput(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started && curInteractable != null &&
-            CharacterManager.Instance.Player.controller.isGrounded)
+            characterManager.Player.controller.isGrounded)
         {
             curInteractable.OnInteract();
             curInteractGameObject = null;
             curInteractable = null;
-            CharacterManager.Instance.Player.animationHandler.OnInteract();
-            CharacterManager.Instance.Player.controller.canMove = false;
+            characterManager.Player.animationHandler.OnInteract();
         }
     }
 }

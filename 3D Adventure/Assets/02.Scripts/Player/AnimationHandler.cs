@@ -36,6 +36,7 @@ public class AnimationHandler : MonoBehaviour
 
     public void OnInteract()
     {
+        CharacterManager.Instance.Player.controller.canMove = false;
         animator.SetTrigger(_interact);
     }
 }

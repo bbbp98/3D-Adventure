@@ -15,7 +15,7 @@ public class ThirdPersonalCamera : MonoBehaviour
     [SerializeField] public bool canLook = true;
 
     [Header("Follow")]
-    [SerializeField] private Vector3 followOffset = new Vector3(0, 2f, -4f);
+    [SerializeField] private Vector3 followOffset = new Vector3(0, 5f, -5f);
     [SerializeField] private float smoothFollowSpeed = 10f;
 
     private Vector2 mouseDelta;

@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using UnityEngine;
 
@@ -5,7 +6,8 @@ public enum ItemType
 {
     Equipable,
     Consumable,
-    Resource
+    Resource,
+    Buff,
 }
 
 public enum ConsumableType
@@ -19,6 +21,21 @@ public class ConsumableItemData
 {
     public ConsumableType type;
     public float value;
+}
+
+public enum BuffType
+{
+    SpeedUp,
+}
+
+[Serializable]
+public class BuffItemData
+{
+    public BuffType buffType;
+    public Sprite buffIcon;
+    public string buffName;
+    public float buffValue;
+    public float duration;
 }
 
 [CreateAssetMenu(fileName = "Item", menuName = "New Item")]
@@ -37,6 +54,6 @@ public class ItemData : ScriptableObject
     [Header("Consumable")]
     public ConsumableItemData[] consumableItemDatas;
 
-    [Header("Equip")]
-    public GameObject equipPrefab;
+    [Header("Buff")]
+    public BuffItemData[] buffItemDatas;
 }

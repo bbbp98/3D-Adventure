@@ -32,7 +32,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         if (_instance == null)
         {
             _instance = this as T;  // instance casting as T / if fail casting, return null
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
         else if (_instance != this)
         {

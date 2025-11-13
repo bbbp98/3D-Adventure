@@ -7,6 +7,13 @@ public class DropItem : MonoBehaviour, IInteractable
     [SerializeField] private ItemData data;
     private float rotateSpeed = 50f;
 
+    private CharacterManager characterManager;
+
+    private void Start()
+    {
+        characterManager = CharacterManager.Instance;
+    }
+
     void Update()
     {
         Rotate();
@@ -24,8 +31,8 @@ public class DropItem : MonoBehaviour, IInteractable
 
     public void OnInteract()
     {
-        CharacterManager.Instance.Player.itemData = data;
-        CharacterManager.Instance.Player.onAddItem?.Invoke();
+        characterManager.Player.itemData = data;
+        characterManager.Player.onAddItem?.Invoke();
         Destroy(gameObject);
     }
 }

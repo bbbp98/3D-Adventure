@@ -15,22 +15,21 @@ public class ItemPreviewManager : MonoBehaviour
 
     private WaitForEndOfFrame waitForEnd = new WaitForEndOfFrame();
 
-    private void OnEnable()
-    {
-    }
+    private CharacterManager characterManager;
 
     private void Start()
     {
-        CharacterManager.Instance.Player.inventory.onInventoryChanged += RefreshInventoryUI;
-        RefreshInventoryUI(CharacterManager.Instance.Player.inventory.GetItems());
+        characterManager = CharacterManager.Instance;
+        characterManager.Player.inventory.onInventoryChanged += RefreshInventoryUI;
+        RefreshInventoryUI(characterManager.Player.inventory.GetItems());
     }
 
     private void OnDisable()
     {
-        if (CharacterManager.Instance != null &&
-        CharacterManager.Instance.Player != null &&
-        CharacterManager.Instance.Player.inventory != null)
-            CharacterManager.Instance.Player.inventory.onInventoryChanged -= RefreshInventoryUI;
+        if (characterManager != null &&
+        characterManager.Player != null &&
+        characterManager.Player.inventory != null)
+            characterManager.Player.inventory.onInventoryChanged -= RefreshInventoryUI;
     }
 
     private void RefreshInventoryUI(IEnumerable<InventoryItem> items)
@@ -52,8 +51,8 @@ public class ItemPreviewManager : MonoBehaviour
 
             // create 3d item preview
             GameObject itemInstance = Instantiate(item.previewPrefab, previewRoot);
-            itemInstance.transform.localPosition = Vector3.zero;
-            itemInstance.transform.localRotation = Quaternion.Euler(0, 180, 0);
+            //itemInstance.transform.localPosition = Vector3.zero;
+            //itemInstance.transform.localRotation = Quaternion.Euler(0, 180, 0);
 
             previewCamara.targetTexture = previewTexture;
             yield return waitForEnd;
